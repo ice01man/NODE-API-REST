@@ -14,7 +14,7 @@ router.post("/products", productController.postProduct )
 
 router.put("/products/:id", productController.putProduct)
 
-router.delete('/products/:id',  productController.deleteProduct)
+router.delete('/products/:id', productController.deleteProduct)
 
 
 

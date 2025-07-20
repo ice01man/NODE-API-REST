@@ -1,15 +1,32 @@
-import * as services from "../services/products.services.js"
+import * as models from "../models/products.model.js"
 
-export const getAllProdcuts = (req, res) => { res.json(services.getAllProducts())}
+export const getAllProdcuts = async (req, res) => {
+    try{
+        const products = await models.getAllProducts()
+        res.json(products)
+    }catch(err){
+        res.json({error: "Error al buscar los productos"})
+    }
+}
 
-export const getSearchProducts =  (req, res)=>{
+export const getSearchProducts = async (req, res)=>{
     //http://localhost:3000/products/search?nombre=Disco SSD Samsung 1TB
+    //console.log(req.query)
+    const {name , price, category} = req.query
+
     console.log(req.query)
-    const {nombre , precio, cantidad} = req.query
-    const filtered = productos.filter((item) => 
-        item.nombre.toLowerCase(). includes(nombre.toLowerCase())
-    )
-    res.json(filtered)
+    if (!price || !category){
+        let xxname= await models.searchProduct("name", name)
+        res.json(xxname)
+    } 
+    if (!name || !category) {
+         let xxprice = await models.searchProduct("price", price)
+        res.json(xxprice)
+        
+    } if (!name || !price) {
+        let xxcategory = await models.searchProduct("category", category)
+        res.json(xxcategory)
+    }    
 }
 export const getProductId = (req,res)=>{
     const {id} = req.params
@@ -20,20 +37,14 @@ export const getProductId = (req,res)=>{
     res.json(product) 
 }
 
-export const postProduct = (req, res) => {
+export const postProduct = async (req, res) => {
     console.log(req.body)
-    const {nombre, precio, cantidad} = req.body
+    const {name, price, quantity, category} = req.body
 
-    const NewProd = {
-        id : productos.length +1,
-        nombre,
-        precio,
-        cantidad
-    }
+    const product = await models.postNewProduct({name, price, quantity, category})
 
-    productos.push(NewProd);
-    res.status(201).json(NewProd)
-    
+    res.status(201).json(product);
+
 };
 
 export const putProduct =  (req,res)=>{
@@ -43,21 +54,28 @@ export const putProduct =  (req,res)=>{
     if (prodIndex === -1){
         return res.status(404).json({error: "Producto no encontrado"})
     }
-    const {nombre, precio, cantidad} = req.body
-    productos[prodIndex]= {id: prodId, nombre, precio, cantidad}
+    const {name, price, quantity,category} = req.body
+
+        
+    productos[prodIndex]= {id: prodId, name, price, quantity,category}
 
     res.json(productos[prodIndex])
 }
 
-export const deleteProduct = (req,res) => {
-    const prodId = parseInt(req.params.id, 10)
-    const prodIndex = productos.findIndex((item)=> item.id === prodId);
-
-    if (prodIndex === -1){
-        return res.status(404).json({error: "Producto no encontrado"})
+export const deleteProduct = async (req,res) => {
+    try {
+        const productId = req.params.id;
+        if (!productId) {
+            return res.status(400).json({ message: 'ID de producto no proporcionado.' });
+        }
+        const result = await productsModel.deleteProduct(productId);
+        if (!result) { 
+            return res.status(404).json({ message: `Producto con ID ${productId} no encontrado.` });
+        }
+        res.status(200).json({ message: `Producto con ID ${productId} eliminado correctamente.` });
+    } catch (error) {
+        console.error('Error al eliminar producto:', error);
+        res.status(500).json({ message: 'Error interno del servidor', error: error.message });
     }
-    
-    productos.splice(prodIndex,1 )
-    res.status(204).send();
-
+   
 }
