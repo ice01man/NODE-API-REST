@@ -8,20 +8,35 @@ import {collection, getDocs, doc, getDoc, addDoc, deleteDoc } from "firebase/fir
 
 
 export const getAllProducts = async()=> {
-const productsCollection = collection(db, "products");  
-  try {
-    const snapshot = await getDocs(productsCollection)
-    const products = snapshot.docs.map((doc) => ({
-        id: doc.id,  ...doc.data(),
-        }));
-        console.log(products)
-        return products;
+    const productsCollection = collection(db, "products");  
+    try {
+        const snapshot = await getDocs(productsCollection)
+        const products = snapshot.docs.map((doc) => ({
+            id: doc.id,  ...doc.data(),
+            }));
+            console.log(products)
+            return products;
+        }
+        catch (error) {
+            console.error('Error al cargar products.json:', error.message);
+            return []; 
     }
-    catch (error) {
-        console.error('Error al cargar products.json:', error.message);
-        return []; 
-  }
 }
+export const getProductByid = async (id) => {
+    const productsCollection = collection(db, "products");  
+
+    try {
+        const productRef = doc(productsCollection, id);
+        const snapshot = await getDoc(productRef);
+       
+        return snapshot.exists() ? { id: snapshot.id, ...snapshot.data() } : null;
+
+    } catch (error) {
+        console.error('Error al cargar products.json:', error.message);
+    }
+
+}
+
 
 export async function searchProduct(flag, item){
     console.log( 'dentro de model', item)
@@ -76,19 +91,17 @@ export const postNewProduct = async (data) => {
     }
 };
 
-export const deleteProduct = async (id) => {
-    const productsCollection = db.collection('products');
+export const deleteProduct = async (productId) => {
+    const productsCollection = collection(db, "products");  
     
     try {
-        const docRef = productsCollection.doc(productId);
-        const doc = await docRef.get();
-       // const prodRef = doc(productsCollection, String(id));
-       // const snapshot = await getDoc(prodRef);
-
-        if(!doc.exists()){
+        const productRef = doc(productsCollection, productId);
+        const snapshot = await getDoc(productRef);
+       
+        if(!snapshot.exists()){
             return false;
         }
-        await docRef.delete();
+        await deleteDoc(productRef);
         return true; 
         
     } catch (error) {

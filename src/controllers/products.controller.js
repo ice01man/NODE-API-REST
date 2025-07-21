@@ -12,29 +12,40 @@ export const getAllProdcuts = async (req, res) => {
 export const getSearchProducts = async (req, res)=>{
     //http://localhost:3000/products/search?nombre=Disco SSD Samsung 1TB
     //console.log(req.query)
-    const {name , price, category} = req.query
+    const {name , category} = req.query
 
     console.log(req.query)
-    if (!price || !category){
+    if (!category){
         let xxname= await models.searchProduct("name", name)
         res.json(xxname)
     } 
-    if (!name || !category) {
-         let xxprice = await models.searchProduct("price", price)
-        res.json(xxprice)
-        
-    } if (!name || !price) {
+     if (!name) {
         let xxcategory = await models.searchProduct("category", category)
         res.json(xxcategory)
     }    
 }
-export const getProductId = (req,res)=>{
-    const {id} = req.params
-    const product = productos.find((item) => item.id == id)
-    if (!product){
-        res.status(404).json({ error:"El Producto No existe"})
+
+export const getProductId = async (req,res)=>{
+    const id  = req.params.id;
+    console.log("controller: ", id)
+    try{
+        if (!id) {
+            return res.status(400).json({ message: 'ID de producto no proporcionado.' });
+        }
+        const product = await models.getProductByid(id);
+
+        if (!product) {
+            res.status(404).json({ error: "No existe el producto" });
+        }
+        if (product) {
+            res.status(200).json(product);
+        } else {
+            res.status(404).json({ message: `Producto con ID ${productId} no encontrado.` });
+        }
+    } catch (err) {
+        res.status(500).json({ message: err.message });
     }
-    res.json(product) 
+   
 }
 
 export const postProduct = async (req, res) => {
@@ -68,7 +79,7 @@ export const deleteProduct = async (req,res) => {
         if (!productId) {
             return res.status(400).json({ message: 'ID de producto no proporcionado.' });
         }
-        const result = await productsModel.deleteProduct(productId);
+        const result = await models.deleteProduct(productId);
         if (!result) { 
             return res.status(404).json({ message: `Producto con ID ${productId} no encontrado.` });
         }
