@@ -36,7 +36,7 @@ export const getProductByid = async (id) => {
         return snapshot.exists() ? { id: snapshot.id, ...snapshot.data() } : null;
 
     } catch (error) {
-        console.error('Error al cargar producto ', error.message);
+        console.error('Error al buscar el producto ');
     }
 
 }

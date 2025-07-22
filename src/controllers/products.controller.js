@@ -23,7 +23,7 @@ export const getSearchProducts = async (req, res) => {
 
 export const getProductId = async (req,res)=>{
     const id  = req.params.id;
-    console.log("controller: ", id)
+   
     try{
         if (!id) {
             return res.status(400).json({ message: 'ID de producto no proporcionado.' });
@@ -39,7 +39,7 @@ export const getProductId = async (req,res)=>{
             res.status(404).json({ message: `Producto con ID ${productId} no encontrado.` });
         }
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        res.status(500).json({ error: "No existe el producto" });
     }
    
 }

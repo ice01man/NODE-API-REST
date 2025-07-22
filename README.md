@@ -75,4 +75,77 @@ cp .env-example .env
         "name": "Juego de mesa: Cataratas"
     }]
 ```
+### Edita un Producto.
 
+- **PUT** `/products/`
+- **Descripcion** Devuelve el producto que se creo.
+- **Parametros** 
+    -   `{"name": "Monitor Noblex 27pl", `
+        `"price": 350.00,`
+        `"category": [ "ELECTRO","Electronica"]}`
+        
+- **Ejemplo** **PUT** `/products/`
+
+**Respuesta de ejemplo**
+```json
+[{
+    "id": "DZKsp5eNK7rGs1p661KS",
+    "name": "Monitor Noblex 27pl", 
+    "price": 350.00,
+    "category": [
+            "ELECTRO",
+            "Electronica"
+        ]
+    }]
+```
+### BORRAR un  Producto.
+
+- **DELETE** `/products/:ID`
+- **Descripcion** BORRA el producto del ID informdado.
+- **Parametros** 
+    -   `/products/DZKsp5eNK7rGs1p661KS`
+        
+        
+- **Ejemplo** **DELETE** `/products/:ID`
+
+**Respuesta de ejemplo**
+```json
+{
+    "message": "Producto con ID DZKsp5eNK7rGs1p661KS eliminado correctamente."
+}
+```
+
+### Crea un Nuevo Producto.
+
+- **POST** `/products/`
+- **Descripcion** Crear un Nuevoproducto con la informacion enviada.
+- **Parametros** 
+    -   `/Body`
+        
+        
+- **Ejemplo** **POST** 
+    `"quantity": 30,`
+    `"name": "Monitor NOBLEXX 24pl", `
+    `"price": 300.00,`
+    `"category": ["ELECTRO", "Electronica"]}`
+
+**Respuesta de ejemplo**
+```json
+{
+    "message": "201, Created"
+}
+```
+### Login.
+
+- **POST** `/api/login/`
+- **Descripcion** Utilizar el Login para Crear, Editar y borrar.
+- **Parametros** 
+    -   `{"user": "",`
+        ` "password": "" }`  
+
+**Respuesta de ejemplo**
+```json
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoxfSwiaWF0IjoxNzUzMTYxMDQ2LCJleHAiOjE3NTMxNjQ2NDZ9.PyCC7U_XJnu8txSgmR5JOVIvyU5HgTcoNV1ZIln2yHc"
+}
+```
