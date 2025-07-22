@@ -1,21 +1,24 @@
-import { readFileSync } from 'fs';
-import { join } from 'path';
-import { fileURLToPath } from 'url';
+
 import { db } from "./firebase.js"
-import {collection, getDocs, doc, getDoc, addDoc, deleteDoc } from "firebase/firestore"
+import {collection, getDocs, doc, getDoc, addDoc, deleteDoc , setDoc} from "firebase/firestore"
 
+function conexionDB(){
+    const productsCollection = collection(db, "products");  
+    if(!productsCollection){ return false}
 
+    return productsCollection
+}
 
 
 export const getAllProducts = async()=> {
-    const productsCollection = collection(db, "products");  
+    
+    const productsCollection = conexionDB()
+
     try {
         const snapshot = await getDocs(productsCollection)
-        const products = snapshot.docs.map((doc) => ({
-            id: doc.id,  ...doc.data(),
-            }));
-            console.log(products)
-            return products;
+        const products = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));   
+        return products;
+
         }
         catch (error) {
             console.error('Error al cargar products.json:', error.message);
@@ -23,77 +26,74 @@ export const getAllProducts = async()=> {
     }
 }
 export const getProductByid = async (id) => {
-    const productsCollection = collection(db, "products");  
+
+    const productsCollection = conexionDB()
 
     try {
         const productRef = doc(productsCollection, id);
         const snapshot = await getDoc(productRef);
-       
         return snapshot.exists() ? { id: snapshot.id, ...snapshot.data() } : null;
 
     } catch (error) {
-        console.error('Error al cargar products.json:', error.message);
+        console.error('Error al cargar producto ', error.message);
     }
 
 }
 
+export const searchProduct = async (paramNames, query) => {
+    
+    const productsCollection = collection(db, "products");
+    console.log(paramNames, query)
 
-export async function searchProduct(flag, item){
-    console.log( 'dentro de model', item)
-    const productos = getAllProducts()
-    const searchTerm = item
-   
-    switch(flag){
-        
-        case 'name':
-            const Nombrefiltered = productos.filter((producto) =>
-            producto.name.toLowerCase().includes(searchTerm)
-            );
-            return Nombrefiltered
-        break;
-        case 'price':
-            const priceSearchValue = Number(searchTerm);
-            if (isNaN(priceSearchValue)) {
-               
-                console.error("El valor de búsqueda para precio no es un número válido:", searchTerm);
-                return []; 
-            }
-            const Preciofiltered = productos.filter((producto) =>
-                typeof producto.price === 'number' && producto.price === priceSearchValue
-            );
-            console.log('dentro de model', Preciofiltered); 
-            return Preciofiltered;
-          
+    try {
+        switch (paramNames){
+            case "name":
+                console.log(query)
             break;
-        case 'category':
-            const filtered = productos.filter((producto) => 
-            producto.category.includes(searchTerm)
-                );
-                console.log( 'dentro de model', filtered)
-                 return filtered
-            break;
-        default:
-            return err.JSON('Items no encontrado')
-    }
+            case "category":
+                console.log(query)
+            break
 
-}
+        }
+    
+    } catch (error) {
+        console.error('Error al buscar ', error.message);
+    };
+
+};
 
 export const postNewProduct = async (data) => {
-    console.log(data)
-    const productsCollection = collection(db, "products");  
+    const productsCollection = conexionDB()
+
     try{
-        constdocRef = await addDoc(productsCollection, data)
-        return { id: docRef.id, ...data };
+        return await addDoc(productsCollection, data)
 
     }catch (error){
-        console.log(error)
+        console.error('Error al crear el producto ', error.message);
 
     }
 };
+export const updateProduct = async (id, productData) =>{
+    const productsCollection = conexionDB()
+
+    try {
+        const prodRef = doc(productsCollection, id);
+        const snapshot = await getDoc(prodRef);
+        if(!snapshot.exists()){
+            return false
+        }
+        await setDoc(prodRef, productData);
+        return {id, ...productData}
+
+    } catch(error){
+        console.error('Error al actualizar el producto ', error.message)
+    }
+
+}
 
 export const deleteProduct = async (productId) => {
-    const productsCollection = collection(db, "products");  
-    
+    const productsCollection = conexionDB()
+
     try {
         const productRef = doc(productsCollection, productId);
         const snapshot = await getDoc(productRef);

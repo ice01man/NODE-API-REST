@@ -9,21 +9,21 @@ export const getAllProdcuts = async (req, res) => {
     }
 }
 
-export const getSearchProducts = async (req, res)=>{
-    //http://localhost:3000/products/search?nombre=Disco SSD Samsung 1TB
-    //console.log(req.query)
-    const {name , category} = req.query
+export const getSearchProducts = async (req, res) => {   
+    const query = req.query;
+    const paramNames = Object.keys(req.query);
 
-    console.log(req.query)
-    if (!category){
-        let xxname= await models.searchProduct("name", name)
-        res.json(xxname)
-    } 
-     if (!name) {
-        let xxcategory = await models.searchProduct("category", category)
-        res.json(xxcategory)
-    }    
-}
+     if (!paramNames ) {
+      return res.status(400).json({ error: "El query es requerido o ingreso una incorrecta" });
+    }
+
+    try {
+        const results = await models.searchProduct(paramNames, query);
+        res.json(results);
+    } catch (error) {
+        res.status(500).json({ error: "Búsqueda fallida" });
+    }
+};
 
 export const getProductId = async (req,res)=>{
     const id  = req.params.id;
@@ -49,28 +49,24 @@ export const getProductId = async (req,res)=>{
 }
 
 export const postProduct = async (req, res) => {
-    console.log(req.body)
+    
     const {name, price, quantity, category} = req.body
 
     const product = await models.postNewProduct({name, price, quantity, category})
-
+    
     res.status(201).json(product);
 
 };
 
-export const putProduct =  (req,res)=>{
-    const prodId = parseInt(req.params.id, 10)
-    const prodIndex = productos.findIndex((item)=> item.id === prodId);
-
-    if (prodIndex === -1){
-        return res.status(404).json({error: "Producto no encontrado"})
-    }
+export const putProduct = async (req,res)=>{
+    const prodId = req.params.id
+   
     const {name, price, quantity,category} = req.body
+    const productData = {name, price, quantity,category}
 
-        
-    productos[prodIndex]= {id: prodId, name, price, quantity,category}
-
-    res.json(productos[prodIndex])
+    const UpdateProd = await models.updateProduct(prodId,productData)    
+    
+    res.json(UpdateProd)
 }
 
 export const deleteProduct = async (req,res) => {
