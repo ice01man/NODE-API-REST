@@ -10,19 +10,15 @@ export const getAllProdcuts = async (req, res) => {
 }
 
 export const getSearchProducts = async (req, res) => {   
-    const query = req.query;
+    const { name } = req.query;
     const paramNames = Object.keys(req.query);
 
-     if (!paramNames ) {
-      return res.status(400).json({ error: "El query es requerido o ingreso una incorrecta" });
-    }
+    const products = await models.getAllProducts()
+    const filteredProducts = products.filter((p) =>
+        p.name.toLowerCase().includes(name.toLowerCase())
+     );
 
-    try {
-        const results = await models.searchProduct(paramNames, query);
-        res.json(results);
-    } catch (error) {
-        res.status(500).json({ error: "Búsqueda fallida" });
-    }
+     res.json(filteredProducts);
 };
 
 export const getProductId = async (req,res)=>{

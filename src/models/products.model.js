@@ -25,6 +25,7 @@ export const getAllProducts = async()=> {
             return []; 
     }
 }
+
 export const getProductByid = async (id) => {
 
     const productsCollection = conexionDB()
@@ -40,26 +41,10 @@ export const getProductByid = async (id) => {
 
 }
 
-export const searchProduct = async (paramNames, query) => {
+export const searchProduct = async () => {
     
-    const productsCollection = collection(db, "products");
-    console.log(paramNames, query)
-
-    try {
-        switch (paramNames){
-            case "name":
-                console.log(query)
-            break;
-            case "category":
-                console.log(query)
-            break
-
-        }
+    return productsCollection = collection(db, "products");
     
-    } catch (error) {
-        console.error('Error al buscar ', error.message);
-    };
-
 };
 
 export const postNewProduct = async (data) => {
